@@ -202,6 +202,10 @@ static void arm_gic_common_reset(DeviceState *dev)
         for (j = 0; j < GIC_NR_SGIS; j++) {
             s->sgi_pending[j][i] = 0;
         }
+        for (j = 0; j < GIC_NR_APRS; j++) {
+            s->apr[j][i] = 0;
+            s->nsapr[j][i] = 0;
+        }
     }
     for (i = 0; i < GIC_NR_SGIS; i++) {
         GIC_SET_ENABLED(i, ALL_CPU_MASK);

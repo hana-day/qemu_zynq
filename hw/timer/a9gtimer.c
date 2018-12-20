@@ -140,8 +140,13 @@ static uint64_t a9_gtimer_read(void *opaque, hwaddr addr, unsigned size)
         shift = 32;
         /* fallthrough */
     case R_COUNTER_LO:
-        update = a9_gtimer_get_update(s);
-        ret = extract64(update.new, shift, 32);
+        if (s->control & R_CONTROL_TIMER_ENABLE) {
+            update = a9_gtimer_get_update(s);
+            ret = extract64(update.new, shift, 32);
+        }
+        else {
+            ret = extract64(s->counter, shift, 32);
+        }
         break;
     case R_CONTROL:
         ret = s->control | gtb->control;

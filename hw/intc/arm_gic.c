@@ -956,8 +956,12 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
                     !GIC_TEST_GROUP(irq + i, 1 << cpu)) {
                     continue; /* Ignore Non-secure access of Group0 IRQ */
                 }
-
-                GIC_SET_PENDING(irq + i, GIC_TARGET(irq + i));
+                if ((irq + i) < GIC_INTERNAL) {
+                    int cm = 1 << cpu;
+                    GIC_SET_PENDING(irq + i, cm);
+                } else {
+                    GIC_SET_PENDING(irq + i, GIC_TARGET(irq + i));
+                }
             }
         }
     } else if (offset < 0x300) {
@@ -979,7 +983,12 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
                for per-CPU interrupts.  It's unclear whether this is the
                corect behavior.  */
             if (value & (1 << i)) {
-                GIC_CLEAR_PENDING(irq + i, ALL_CPU_MASK);
+               if ((irq + i) < GIC_INTERNAL) {
+                    int cm = 1 << cpu;
+                    GIC_CLEAR_PENDING(irq + i, cm);
+                } else {
+                    GIC_CLEAR_PENDING(irq + i, ALL_CPU_MASK);
+                }
             }
         }
     } else if (offset < 0x400) {
